@@ -3,6 +3,7 @@
 
 #include "AES128.hpp"
 
-void SubBytes(Block& block) noexcept;
+void SubBytes(Block& block)    noexcept;
+void InvSubBytes(Block& block) noexcept;
 
 #endif

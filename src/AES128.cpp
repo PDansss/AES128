@@ -1,6 +1,10 @@
 #include <algorithm>
 
 #include "AES128.hpp"
+#include "ShiftRows.hpp"
+#include "SubBytes.hpp"
+#include "MixColumns.hpp"
+#include "Key.hpp"
 
 unsigned char Xtime(unsigned char num) noexcept
 {
@@ -35,6 +39,7 @@ Byte Byte::operator=(const Byte& _byte) {
     byte = _byte.byte;
     return byte;
 }
+
 Byte Byte::operator+(Byte _byte) {
     return byte ^ _byte;
 }
@@ -42,12 +47,15 @@ Byte Byte::operator+(Byte _byte) {
 Byte::operator const unsigned char& () const {
     return byte;
 }
+
 Byte::operator unsigned char& () {
     return byte;
 }
+
 Byte Byte::operator*(Byte _byte) {
     return GFMultiply(byte, _byte);
 }
+
 Byte Byte::operator*(int _byte) {
     return GFMultiply(byte, _byte);
 }
@@ -56,6 +64,7 @@ template<typename T>
 Byte operator+(T byte1, Byte byte2) {
     return byte1 ^ byte2;
 }
+
 template<typename T>
 Byte operator+(Byte byte1, T byte2) {
     return byte1 ^ byte2;
@@ -80,6 +89,7 @@ Block::Block(std::initializer_list<Byte> list) {
 Byte& Word::operator[](unsigned char index) {
     return word[index];
 }
+
 const Byte& Word::operator[](unsigned char index) const {
     return word[index];
 }
@@ -87,6 +97,33 @@ const Byte& Word::operator[](unsigned char index) const {
 Word& Block::operator[](unsigned char index) {
     return words[index];
 }
+
 const Word& Block::operator[](unsigned char index) const {
     return words[index];
+}
+
+void OneBlockEncrypt(Block& block, const Word* keys) {
+    AddRoundKey(block, keys, 0);
+    for (int i = 1; i < 10; i++) {
+        SubBytes(block);
+        ShiftRows(block);
+        MixColumns(block);
+        AddRoundKey(block, keys, i);
+    }
+    SubBytes(block);
+    ShiftRows(block);
+    AddRoundKey(block, keys, 10);
+}
+
+void OneBlockDecrypt(Block& block, const Word* keys) {
+    AddRoundKey(block, keys, 10);
+    for (int i = 9; i > 0; i--) {
+        InvShiftRows(block);
+        InvSubBytes(block);
+        AddRoundKey(block, keys, i);
+        InvMixColumns(block);
+    }
+    InvShiftRows(block);
+    InvSubBytes(block);
+    AddRoundKey(block, keys, 0);
 }

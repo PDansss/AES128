@@ -4,5 +4,6 @@
 #include "AES128.hpp"
 
 void MixColumns(Block& block);
+void InvMixColumns(Block& block);
 
 #endif

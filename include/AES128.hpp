@@ -3,33 +3,6 @@
 
 #include <initializer_list>
 
-struct Byte {
-    Byte(int i);
-    Byte();
-    Byte operator=(const Byte& _byte);
-    Byte operator+(Byte _byte);
-    operator const unsigned char& () const;
-    operator unsigned char& ();
-    Byte operator*(Byte _byte);
-    Byte operator*(int _byte);
-    unsigned char byte;
-};
-
-struct Word {
-    Word& operator=(const Word& _word);
-    Byte& operator[](unsigned char index);
-    const Byte& operator[](unsigned char index) const;
-    Byte word[4];
-};
-
-struct Block {
-    Block(std::initializer_list<Byte> list);
-    Word& operator[](unsigned char index);
-    const Word& operator[](unsigned char index) const;
-    Word words[4];
-};
-
-
 inline constexpr unsigned char IrreduciblePolynomial = 0x1b; //  Irreducible polynomial of degree 8 ((x^8) + x^4 + x^3 + x + 1) 
 
 inline constexpr unsigned char Sbox[] = { 0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
@@ -81,5 +54,35 @@ inline constexpr unsigned char Rcon[] = { 0x00,
 inline constexpr unsigned char Nb = 4;
 inline constexpr unsigned char Nk = 4;
 inline constexpr unsigned char WordLength = 4;
+
+struct Byte {
+    Byte(int i);
+    Byte();
+    Byte operator=(const Byte& _byte);
+    Byte operator+(Byte _byte);
+    operator const unsigned char& () const;
+    operator unsigned char& ();
+    Byte operator*(Byte _byte);
+    Byte operator*(int _byte);
+    unsigned char byte;
+};
+
+struct Word {
+    Word& operator=(const Word& _word);
+    Byte& operator[](unsigned char index);
+    const Byte& operator[](unsigned char index) const;
+    Byte word[4];
+};
+
+struct Block {
+    Block(std::initializer_list<Byte> list);
+    Word& operator[](unsigned char index);
+    const Word& operator[](unsigned char index) const;
+    Word words[4];
+};
+
+void OneBlockEncrypt(Block& block, const Word* keys);
+void OneBlockDecrypt(Block& block, const Word* keys);
+Word* KeyExpansion(const Block& key);
 
 #endif
