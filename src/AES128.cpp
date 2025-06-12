@@ -78,14 +78,6 @@ Word& Word::operator=(const Word& _word) {
     return reinterpret_cast<Word&>(word);
 }
 
-Block::Block(std::initializer_list<Byte> list) {
-    int i = 0;
-    std::for_each(list.begin(), list.end(), [&](Byte n){
-        words[i % 4][i / 4] = n;
-        i++;
-    });
-}
-
 Byte& Word::operator[](unsigned char index) {
     return word[index];
 }

@@ -75,7 +75,6 @@ struct Word {
 };
 
 struct Block {
-    Block(std::initializer_list<Byte> list);
     Word& operator[](unsigned char index);
     const Word& operator[](unsigned char index) const;
     Word words[4];
