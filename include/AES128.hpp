@@ -80,8 +80,8 @@ struct Block {
     Word words[4];
 };
 
-void OneBlockEncrypt(Block& block, const Word* keys);
-void OneBlockDecrypt(Block& block, const Word* keys);
 Word* KeyExpansion(const Block& key);
+void FileEncryption(const char* path, const Word* keys);
+void FileDecryption(const char* path, const Word* keys);
 
 #endif

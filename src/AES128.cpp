@@ -1,4 +1,8 @@
+#include <iostream>
 #include <algorithm>
+#include <fstream>
+#include <filesystem>
+#include <string>
 
 #include "AES128.hpp"
 #include "ShiftRows.hpp"
@@ -118,4 +122,57 @@ void OneBlockDecrypt(Block& block, const Word* keys) {
     InvShiftRows(block);
     InvSubBytes(block);
     AddRoundKey(block, keys, 0);
+}
+
+void FullBuffer(const char* path, unsigned char* buffer, size_t size) {
+    std::ifstream file{ path, std::ios::binary };
+    file.read(reinterpret_cast<char*>(buffer), size);
+    file.close();
+}
+
+unsigned char* CreateBuffer(size_t size, size_t& blocks_count) {
+    unsigned char* buffer = nullptr;
+    if (size % 16 != 0) {
+        buffer = new unsigned char[((size / 16) + ((size % 16) / (size % 16))) * 16]{};
+        blocks_count = ((size / 16) + ((size % 16) / (size % 16)));
+    }
+    else {
+        buffer = new unsigned char[size] {};
+        if (size != 16) {
+            blocks_count = size / 16;
+        }
+        else {
+            blocks_count = 1;
+        }
+        std::cout << size;
+    }
+    return buffer;
+}
+
+void FileEncryption(const char* path, const Word* keys) {
+    size_t file_size = std::filesystem::file_size(path);
+    size_t blocks_number;
+    unsigned char* file_bytes = CreateBuffer(file_size, blocks_number);
+    FullBuffer(path, file_bytes, file_size);
+    Block* blocks = reinterpret_cast<Block*>(file_bytes);
+    for (int i = 0; i < blocks_number; i++) {
+        OneBlockEncrypt(blocks[i], keys);
+    }
+    std::ofstream file{ path, std::ios::binary };
+    file.write(reinterpret_cast<char*>(blocks), blocks_number * 16);
+    file.close();
+}
+
+void FileDecryption(const char* path, const Word* keys) {
+    size_t file_size = std::filesystem::file_size(path);
+    size_t blocks_number;
+    unsigned char* file_bytes = CreateBuffer(file_size, blocks_number);
+    FullBuffer(path, file_bytes, file_size);
+    Block* blocks = reinterpret_cast<Block*>(file_bytes);
+    for (int i = 0; i < blocks_number; i++) {
+        OneBlockDecrypt(blocks[i], keys);
+    }
+    std::ofstream file{ path, std::ios::binary };
+    file.write(reinterpret_cast<char*>(blocks), blocks_number * 16);
+    file.close();
 }
